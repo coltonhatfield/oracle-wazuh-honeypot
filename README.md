@@ -8,7 +8,7 @@
 
 Automated scanners begin mapping and attacking exposed IPv4 ports within minutes of deployment. The attacks are highly distributed, with significant hotspots originating from global botnet infrastructures.
 
-![Top Attackers IP and Map](images/map_and_ips.jpg) 
+![Top Attackers IP and Map](images/map_and_ips.png) 
 *Visualizing the geographic distribution of attacking IP addresses and the top offending nodes.*
 
 The initial breach vector relies heavily on brute-forcing default or weak credentials. The data shows a massive preference for targeting the `root` user, confirming that attackers are hunting for high-privileged access immediately.
