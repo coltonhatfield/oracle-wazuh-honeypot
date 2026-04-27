@@ -1,0 +1,27 @@
+<group name="local,syslog,sshd,">
+  <rule id="100001" level="5">
+    <if_sid>5716</if_sid>
+    <srcip>1.1.1.1</srcip>
+    <description>sshd: authentication failed from IP 1.1.1.1.</description>
+    <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+  </rule>
+</group>
+
+<group name="cowrie,">
+
+  <rule id="100010" level="5">
+    <location>cowrie.json</location>
+    <description>Cowrie Honeypot Event: $(eventid)</description>
+    <group>honeypot,</group>
+  </rule>
+
+  <rule id="100011" level="8">
+    <if_sid>100010</if_sid>
+    <field name="eventid">^cowrie.login.success</field>
+    <description>Cowrie: Bot successfully logged into honeypot as $(username)</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+
+</group>
