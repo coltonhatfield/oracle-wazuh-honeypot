@@ -47,14 +47,6 @@ Static analysis and cross-referencing of the dropped staging script (`setup.sh`)
 * **Malware SHA-256 (`setup.sh`):** `783adb7ad6b16fe9818f3e6d48b937c3ca1994ef24e50865282eeedeab7e0d59`
 * **Injected SSH Key:** `rsa-key-20230629`
 
-## Repository Structure
-
-To maintain operational security, exact IP addresses, Tailnet keys, and SSH keys have been sanitized from these configuration files.
-
-* `/infrastructure`: Contains the `docker-compose.yml` used to deploy the Cowrie container and establish the volume mappings.
-* `/siem-rules`: Contains the custom `local_rules.xml` engineered for the Wazuh Manager. These rules natively parse Cowrie JSON output, establish dynamic alerting levels, and map the activity to MITRE ATT&CK vectors.
-* `/dashboards`: Contains the raw JSON exports of the OpenSearch custom threat intelligence dashboards for easy replication.
-
 ## Conclusion & Learnings
 
 * **Security by obscurity is dead:** Automated scanners map and attack exposed IPv4 ports within minutes of deployment. You cannot hide on the internet.
