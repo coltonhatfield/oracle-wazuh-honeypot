@@ -54,7 +54,7 @@ During the capture window, the honeypot intercepted a textbook automated botnet 
 * **Phase 3: Payload Delivery (T1105):** The bot uploaded a staging script (`setup.sh`) and four different versions of its primary payload (`redtail.arm7`, `redtail.arm8`, `redtail.i686`, `redtail.x86_64`). This is a standard "spray" tactic for IoT/Linux botnets to ensure execution regardless of the host's CPU architecture.
 * **Phase 4: C2 Beacon:** The bot echoed `\x61\x75\x74\x68\x5F\x6F\x6B\x0A` (ASCII: `auth_ok\n`) to signal a successful compromise to its Command & Control server.
 
-### 3. Payload Delivery & Malware Analysis
+### 3. Payload Delivery & Initial Malware Analysis
 
 The captured `setup.sh` script functions as an architecture-aware loader. It searches the filesystem for a writable/executable directory, identifies the system architecture via `uname`, and executes the correct `redtail.*` binary before cleaning up its tracks by deleting the dropped files.
 
@@ -69,6 +69,39 @@ Static analysis and cross-referencing of the dropped staging script (`setup.sh`)
 * **Malware SHA-256 (`redtail.x86_64`):** `59c29436755b0778e968d49feeae20ed65f5fa5e35f9f7965b8ed93420db91e5`
 * **Malware SHA-256 (`setup.sh`):** `783adb7ad6b16fe9818f3e6d48b937c3ca1994ef24e50865282eeedeab7e0d59`
 * **Injected SSH Key:** `rsa-key-20230629`
+
+## Dynamic Malware Analysis & Containment
+
+To further analyze the payloads captured by the honeypot, an isolated REMnux VM was deployed on a Proxmox hypervisor. Below is a summary of the end-to-end malware analysis and containment exercise performed on the captured samples:
+
+### 1. Sandbox Preparation & Static Analysis
+* **Secure Transfer:** The air-gap between the honeypot and the isolated REMnux VM in Proxmox was bridged by packaging the captured malware payload into a read-only ISO and mounting it as a virtual CD/DVD drive (`/dev/sr0`).
+* **Static Triage:** By attempting initial execution and analyzing the resulting exec format error, it was identified that the payload was not a compiled ELF binary as initially suspected, but rather a sophisticated, multi-stage Python worm and botnet node.
+* **Source Code Review:** Reading the raw Python script revealed the attacker’s logic, including its requirement for root privileges, its persistence mechanisms (systemd), its C2 infrastructure (`api.telegram.org`, `sou.pp.ua`), and its propagation method (using `masscan` and `paramiko` to brute-force SSH ports 22 and 5522).
+
+### 2. Network Configuration & Containment
+* **Egress Filtering:** To safely execute the malware while allowing it to pull its initial dependencies via HTTP/HTTPS, the REMnux VM was connected to an OPNsense router interface (`vmbr1`). Strict firewall block rules were implemented on outbound TCP ports 22 and 5522 to permanently neuter the worm's ability to attack live targets on the internet.
+* **Interface Troubleshooting:** Modern Ubuntu networking quirks were bypassed by directly handling the interface configuration to establish the necessary gateway and DNS routing through OPNsense.
+
+### 3. Detonation & Telemetry Logging
+* **Dynamic Execution:** With network safeguards in place and a Proxmox snapshot taken, the malware was detonated as root (`sudo python3`).
+* **System Call Tracing (`strace`):** Successfully attached `strace` with child-process tracking (`-f`) and microsecond timestamps (`-tt`), capturing every interaction the malware had with the Linux kernel. This logged the exact moments it dropped its payloads into `/opt/monitor/` and `/etc/systemd/system/`.
+* **Network Packet Capture (Wireshark):** Captured the active network streams as the malware reached out to its C2 servers and downloaded its target IP lists, while simultaneously observing the OPNsense firewall successfully dropping its outbound SSH attack packets.
+
+### 4. Eradication & Secure Exfiltration
+* **Process Termination:** The active infection was manually ripped out of the operating system by disabling the injected systemd services and killing the hidden screen and Python background threads.
+* **Air-Gapped Exfiltration:** To safely retrieve the `strace_log.txt` and `.pcap` files without exposing cloud API keys to an infected environment, a temporary 1GB virtual hard drive was provisioned in Proxmox.
+* **Cross-Platform Forensics:** The drive was natively formatted as NTFS inside Linux, the telemetry files were password-protected into a `.zip` archive to bypass Windows Defender's real-time scanning, and the virtual hardware was successfully detached/re-attached to exfiltrate the data to a clean Windows 10 VM for safe upload.
+
+## Deployment Instructions (Reproducibility)
+
+To deploy this flat honeypot infrastructure on your own host (such as an Oracle Cloud instance), follow these steps:
+
+### Prerequisites
+* **Docker and Docker Compose** installed on your host system.
+* **Port 2222** open on your host's firewall to allow inbound honeypot traffic.
+
+---
 
 ## Deployment Instructions (Reproducibility)
 
