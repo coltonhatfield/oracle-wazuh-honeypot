@@ -71,15 +71,17 @@ Static analysis and cross-referencing of the dropped staging script (`setup.sh`)
 * **Injected SSH Key:** `rsa-key-20230629`
 
 ### 🦠 Recent Malware Analysis: Bendi.py
-[cite_start]**Date:** April 30, 2026 [cite: 3]
 
-[cite_start]I recently captured and analyzed `bendi.py` via an isolated Cowrie honeypot[cite: 10]. [cite_start]The malware operates as an automated SSH brute-forcing worm designed to target poorly secured Linux environments[cite: 11]. [cite_start]Upon gaining access, it acts as a dropper for two primary payloads: the Komari Agent (a Remote Access Trojan that establishes persistent C2 via Telegram) and Traffmonetizer (a proxyware application used for bandwidth hijacking)[cite: 12, 13, 14].
+**Date:** April 30, 2026
+
+I recently captured and analyzed `bendi.py` via an isolated Cowrie honeypot. The malware operates as an automated SSH brute-forcing worm designed to target poorly secured Linux environments. Upon gaining access, it acts as a dropper for two primary payloads: the Komari Agent (a Remote Access Trojan that establishes persistent C2 via Telegram) and Traffmonetizer (a proxyware application used for bandwidth hijacking).
 
 **Key Highlights of the Report:**
-* [cite_start]**MITRE ATT&CK Mapping:** Mapped the malware's tactics across Initial Access (T1110), Execution (T1059.006), Persistence (T1543.002), Defense Evasion (T1562.001, T1070.004), Command and Control (T1102), and Impact (T1496)[cite: 49, 52, 55].
-* [cite_start]**Telemetry & Analysis:** Broke down the Wazuh alerts generated during the attack and conducted static analysis on the Python and Bash orchestration scripts[cite: 57, 60, 83].
-* [cite_start]**Detection Engineering:** Developed custom DQL queries to hunt for file artifacts, suspicious package manager activity, and C2 infrastructure communication[cite: 115, 124, 138].
-* [cite_start]**IoC Extraction:** Documented critical domains, file paths, and Telegram bot credentials for network defense[cite: 25, 29, 32, 41].
+
+* **MITRE ATT&CK Mapping:** Mapped the malware's tactics across Initial Access (T1110), Execution (T1059.006), Persistence (T1543.002), Defense Evasion (T1562.001, T1070.004), Command and Control (T1102), and Impact (T1496).
+* **Telemetry & Analysis:** Broke down the Wazuh alerts generated during the attack and conducted static analysis on the Python and Bash orchestration scripts.
+* **Detection Engineering:** Developed custom DQL queries to hunt for file artifacts, suspicious package manager activity, and C2 infrastructure communication.
+* **IoC Extraction:** Documented critical domains, file paths, and Telegram bot credentials for network defense.
 
 **Tools & Concepts:** `Cowrie`, `Wazuh`, `DQL`, `Static Analysis`, `Threat Hunting`, `MITRE ATT&CK`
 
